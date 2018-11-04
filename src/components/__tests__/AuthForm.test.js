@@ -1,7 +1,7 @@
 import React from "react";
 import { mount } from "enzyme";
 
-import LoginForm from "../LoginForm";
+import AuthForm from "../AuthForm";
 import Provider from "../../Provider";
 
 let wrapped;
@@ -9,7 +9,7 @@ let wrapped;
 beforeEach(() => {
   wrapped = mount(
     <Provider>
-      <LoginForm />
+      <AuthForm location={{ pathname: "/login" }} />
     </Provider>
   );
 });
@@ -19,6 +19,7 @@ afterEach(() => {
 });
 
 it("has header, two imputs, and a button", () => {
+  expect(wrapped.find("h1").text()).toEqual("Login to Shop-Name manager.");
   expect(wrapped.find("h1").length).toEqual(1);
   expect(wrapped.find("input").length).toEqual(2);
   expect(wrapped.find("button").length).toEqual(1);

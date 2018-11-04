@@ -1,11 +1,13 @@
 import React, { Component } from "react";
-import LoginForm from "./LoginForm";
+import Navbar from "./Navbar";
+import Main from "./Main";
 
 class App extends Component {
   render() {
     return (
-      <div className="container">
-        <LoginForm />
+      <div>
+        <Navbar />
+        <Main />
       </div>
     );
   }
