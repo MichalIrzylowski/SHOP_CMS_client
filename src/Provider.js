@@ -21,10 +21,10 @@ const middlewareSetup =
     ? composeWithDevTools(applyMiddleware(...middlewares))
     : applyMiddleware(...middlewares);
 
-export default props => {
-  const store = createStore(reducer, {}, middlewareSetup);
+export default ({ children, initialState = {} }) => {
+  const store = createStore(reducer, initialState, middlewareSetup);
 
   sagaMiddleware.run(rootSaga);
 
-  return <Provider store={store}>{props.children}</Provider>;
+  return <Provider store={store}>{children}</Provider>;
 };

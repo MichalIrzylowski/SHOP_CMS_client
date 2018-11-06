@@ -1,7 +1,8 @@
-import React from "react";
+import React, { Fragment } from "react";
+import { connect } from "react-redux";
 import { Link } from "react-router-dom";
 
-export default () => {
+const Navbar = ({ isLoggedin }) => {
   return (
     <nav className="navbar navbar-expand-lg navbar-light bg-light">
       <Link to="/" className="navbar-brand">
@@ -20,18 +21,39 @@ export default () => {
       </button>
       <div className="collapse navbar-collapse" id="navbarSupportedContent">
         <ul className="navbar-nav mr-auto">
-          <li className="navbar-item">
-            <Link to="/login" className="nav-link">
-              Login
-            </Link>
-          </li>
-          <li className="navbar-item">
-            <Link to="/register" className="nav-link">
-              Register
-            </Link>
-          </li>
+          {!isLoggedin && (
+            <Fragment>
+              <li className="navbar-item">
+                <Link to="/login" className="nav-link">
+                  Login
+                </Link>
+              </li>
+              <li className="navbar-item">
+                <Link to="/register" className="nav-link">
+                  Register
+                </Link>
+              </li>
+            </Fragment>
+          )}
+          {isLoggedin && (
+            <Fragment>
+              <li className="navbar-item">
+                <Link to="/add_item" className="nav-link">
+                  Add item
+                </Link>
+              </li>
+            </Fragment>
+          )}
         </ul>
       </div>
     </nav>
   );
 };
+
+function mapStateToProps(state) {
+  return {
+    isLoggedin: !!state.currentUser.id
+  };
+}
+
+export default connect(mapStateToProps)(Navbar);

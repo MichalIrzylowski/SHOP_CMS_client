@@ -11,6 +11,12 @@ class AuthForm extends Component {
     };
   }
 
+  componentDidUpdate(prevProps) {
+    if (prevProps.isUserLoggedin !== this.props.isUserLoggedin) {
+      this.props.history.push("/");
+    }
+  }
+
   changeInput = e => {
     this.setState({ [e.target.name]: e.target.value });
   };
@@ -28,6 +34,17 @@ class AuthForm extends Component {
   render() {
     const authType = this.props.location.pathname === "/login";
 
+    const errors =
+      this.props.errors.length > 0
+        ? this.props.errors.map((error, index) => {
+            return (
+              <div className="alert alert-danger text-center" key={index}>
+                {error}
+              </div>
+            );
+          })
+        : null;
+
     return (
       <div className="container">
         <div className="row justify-content-md-center">
@@ -35,15 +52,14 @@ class AuthForm extends Component {
             <h1 className="text-center">
               {authType ? "Login" : "Register"} to <em>Shop-Name</em> manager.
             </h1>
+            {errors}
             <form onSubmit={this.handleSubmit}>
               <div className="form-group">
-                <label htmlFor={authType ? "Login" : "Register"}>
-                  {authType ? "Login" : "Register"}:
-                </label>
+                <label htmlFor="Login">Login:</label>
                 <input
                   className="form-control"
                   type="text"
-                  id={authType ? "Login" : "Register"}
+                  id="login"
                   name="login"
                   value={this.state.login}
                   onChange={this.changeInput}
@@ -77,7 +93,9 @@ class AuthForm extends Component {
 
 function mapStateToProps(state) {
   return {
-    loading: state.authenticateReducer.loading
+    loading: state.authenticateReducer.loading,
+    errors: state.errors,
+    isUserLoggedin: !!state.currentUser.id
   };
 }
 
