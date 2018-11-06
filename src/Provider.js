@@ -24,6 +24,11 @@ const middlewareSetup =
 export default ({ children, initialState = {} }) => {
   const store = createStore(reducer, initialState, middlewareSetup);
 
+  //TODO - add inital login
+  if (sessionStorage.token) {
+    store.dispatch({ type: "remember to add initial login!" });
+  }
+
   sagaMiddleware.run(rootSaga);
 
   return <Provider store={store}>{children}</Provider>;

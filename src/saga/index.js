@@ -1,6 +1,6 @@
-import { take, fork, call, put } from "redux-saga/effects";
+import { take, fork, call, put, takeEvery } from "redux-saga/effects";
 import * as Action from "../actions/ActionTypes";
-import { api } from "../handlers/api";
+import { api, setAuthorizationHeader } from "../handlers/api";
 
 function* authenticateFlow() {
   while (true) {
@@ -11,11 +11,11 @@ function* authenticateFlow() {
     try {
       yield put({ type: Action.REMOVE_ERRORS });
       const response = yield call(api, "post", path, request.userData);
-      console.log(response);
       const { id, login, token } = response.data;
       sessionStorage.setItem("token", token);
       yield put({ type: Action.AUTHENTICATE_SUCCESS });
       yield put({ type: Action.SET_CURRENT_USER, userData: { id, login } });
+      setAuthorizationHeader(token);
     } catch (error) {
       const message = error.response.data.error.message;
       yield put({ type: Action.AUTHENTICATE_FAIL });
@@ -24,6 +24,20 @@ function* authenticateFlow() {
   }
 }
 
+function* addItem() {
+  while (true) {
+    const request = yield take(Action.ADD_SHOP_ITEM);
+    const path = "/api/shop/shop_item";
+    try {
+      const response = yield call(api, "post", path);
+      console.log(response);
+    } catch (error) {
+      console.log(error);
+    }
+  }
+}
+
 export default function* rootSaga() {
   yield fork(authenticateFlow);
+  yield fork(addItem);
 }

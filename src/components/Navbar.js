@@ -1,8 +1,9 @@
 import React, { Fragment } from "react";
 import { connect } from "react-redux";
 import { Link } from "react-router-dom";
+import { LOGOUT } from "../actions/ActionTypes";
 
-const Navbar = ({ isLoggedin }) => {
+const Navbar = ({ isLoggedin, handleLogout }) => {
   return (
     <nav className="navbar navbar-expand-lg navbar-light bg-light">
       <Link to="/" className="navbar-brand">
@@ -42,6 +43,14 @@ const Navbar = ({ isLoggedin }) => {
                   Add item
                 </Link>
               </li>
+              <li className="navbar-item">
+                <button
+                  className="btn btn-outline-danger"
+                  onClick={handleLogout}
+                >
+                  Logout
+                </button>
+              </li>
             </Fragment>
           )}
         </ul>
@@ -56,4 +65,13 @@ function mapStateToProps(state) {
   };
 }
 
-export default connect(mapStateToProps)(Navbar);
+function mapDispatchToProps(dispatch) {
+  return {
+    handleLogout: () => dispatch({ type: LOGOUT })
+  };
+}
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(Navbar);

@@ -1,5 +1,7 @@
 import React, { Component } from "react";
+import { connect } from "react-redux";
 import ProductCardPreview from "./ProductCardPreview";
+import { ADD_SHOP_ITEM } from "../../actions/ActionTypes";
 
 class AddShopItemForm extends Component {
   constructor(props) {
@@ -21,7 +23,6 @@ class AddShopItemForm extends Component {
     this.setState({ [e.target.name]: file });
     const reader = new FileReader();
     reader.addEventListener("load", () => {
-      console.log(typeof reader.result === "string");
       this.setState({ imgSrc: reader.result });
     });
     reader.readAsDataURL(file);
@@ -29,6 +30,7 @@ class AddShopItemForm extends Component {
 
   handleSubmit = e => {
     e.preventDefault();
+    this.props.addItem();
   };
 
   render() {
@@ -94,4 +96,13 @@ class AddShopItemForm extends Component {
   }
 }
 
-export default AddShopItemForm;
+function mapDispatchToProps(dispatch) {
+  return {
+    addItem: () => dispatch({ type: ADD_SHOP_ITEM })
+  };
+}
+
+export default connect(
+  null,
+  mapDispatchToProps
+)(AddShopItemForm);
