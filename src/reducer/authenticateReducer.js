@@ -11,7 +11,7 @@ const defaultState = {
 export default function(state = defaultState, action) {
   switch (action.type) {
     case AUTHENTICATE_REQUEST:
-      return { ...state, loading: true };
+      return { loading: true };
     case AUTHENTICATE_SUCCESS:
       return { loading: false };
     case AUTHENTICATE_FAIL:

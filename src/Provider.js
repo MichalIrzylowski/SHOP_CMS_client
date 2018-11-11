@@ -5,8 +5,11 @@ import reducer from "./reducer";
 import { composeWithDevTools } from "redux-devtools-extension";
 import createSagaMiddleware from "redux-saga";
 import logger from "redux-logger";
+import jwtDecode from "jwt-decode";
 
 import rootSaga from "./saga";
+import { PUT_ERROR, SET_CURRENT_USER } from "./actions/ActionTypes";
+import { setAuthorizationHeader } from "./handlers/api";
 
 const sagaMiddleware = createSagaMiddleware();
 
@@ -24,9 +27,16 @@ const middlewareSetup =
 export default ({ children, initialState = {} }) => {
   const store = createStore(reducer, initialState, middlewareSetup);
 
-  //TODO - add inital login
   if (sessionStorage.token) {
-    store.dispatch({ type: "remember to add initial login!" });
+    setAuthorizationHeader(sessionStorage.token);
+    try {
+      store.dispatch({
+        type: SET_CURRENT_USER,
+        userData: jwtDecode(sessionStorage.token)
+      });
+    } catch (error) {
+      store.dispatch({ type: PUT_ERROR, error });
+    }
   }
 
   sagaMiddleware.run(rootSaga);

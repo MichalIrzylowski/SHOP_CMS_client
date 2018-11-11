@@ -5,6 +5,7 @@ import Landing from "./Landing";
 import AuthForm from "./AuthForm";
 import AddShopItemForm from "./AddShopItemForm/";
 import NoMatch from "./NoMatch";
+import ShopItemView from "./ShopItemView";
 
 const Main = () => {
   return (
@@ -13,6 +14,7 @@ const Main = () => {
       <Route exact path="/login" component={AuthForm} />
       <Route exact path="/register" component={AuthForm} />
       <Route exact path="/add_item" component={withAuth(AddShopItemForm)} />
+      <Route exact path="/shop_items" component={withAuth(ShopItemView)} />
       <Route component={NoMatch} />
     </Switch>
   );

@@ -10,6 +10,7 @@ class AddShopItemForm extends Component {
       name: "",
       description: "",
       imgSrc: "",
+      price: undefined,
       picture: undefined
     };
   }
@@ -30,7 +31,9 @@ class AddShopItemForm extends Component {
 
   handleSubmit = e => {
     e.preventDefault();
-    this.props.addItem();
+    const { name, description, picture, price } = this.state;
+    const { currentUserId } = this.props;
+    this.props.addItem(name, description, picture, currentUserId, price);
   };
 
   render() {
@@ -44,6 +47,7 @@ class AddShopItemForm extends Component {
             title={this.state.name}
             text={this.state.description}
             picture={this.state.imgSrc}
+            price={this.state.price}
           />
           <div className="col-sm">
             <form onSubmit={this.handleSubmit}>
@@ -58,6 +62,19 @@ class AddShopItemForm extends Component {
                   value={this.state.name}
                   onChange={this.handleChange}
                 />
+              </div>
+              <div className="form-group">
+                <label htmlFor="name">Price:</label>
+                <input
+                  className="form-control"
+                  type="number"
+                  name="price"
+                  id="price"
+                  placeholder="Enter price"
+                  value={this.state.price}
+                  onChange={this.handleChange}
+                />{" "}
+                USD
               </div>
               <div className="form-group">
                 <label htmlFor="description">Description of a product:</label>
@@ -98,11 +115,21 @@ class AddShopItemForm extends Component {
 
 function mapDispatchToProps(dispatch) {
   return {
-    addItem: () => dispatch({ type: ADD_SHOP_ITEM })
+    addItem: (name, description, picture, userId, price) =>
+      dispatch({
+        type: ADD_SHOP_ITEM,
+        data: { name, description, picture, userId, price }
+      })
+  };
+}
+
+function mapStateToProps(state) {
+  return {
+    currentUserId: state.currentUser.id
   };
 }
 
 export default connect(
-  null,
+  mapStateToProps,
   mapDispatchToProps
 )(AddShopItemForm);

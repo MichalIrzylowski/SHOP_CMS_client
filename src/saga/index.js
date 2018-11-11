@@ -1,6 +1,10 @@
 import { take, fork, call, put, takeEvery } from "redux-saga/effects";
 import * as Action from "../actions/ActionTypes";
-import { api, setAuthorizationHeader } from "../handlers/api";
+import {
+  api,
+  setAuthorizationHeader,
+  sendImageToCloudinary
+} from "../handlers/api";
 
 function* authenticateFlow() {
   while (true) {
@@ -29,11 +33,32 @@ function* addItem() {
     const request = yield take(Action.ADD_SHOP_ITEM);
     const path = "/api/shop/shop_item";
     try {
-      const response = yield call(api, "post", path);
+      setAuthorizationHeader(false);
+      const imageURL = yield sendImageToCloudinary(request.data.picture);
+      setAuthorizationHeader(sessionStorage.token);
+      const image = imageURL.data.secure_url;
+      const { name, description, userId, price } = request.data;
+      const response = yield call(api, "post", path, {
+        name,
+        description,
+        image,
+        userId,
+        price
+      });
       console.log(response);
     } catch (error) {
       console.log(error);
     }
+  }
+}
+
+function* fetchShopItems() {
+  while (true) {
+    const request = yield Action.FETCH_SHOP_ITEMS_REQUEST;
+    const path = "/api/shop/shop_item";
+    try {
+      const response = yield call(api, "get", path);
+    } catch (error) {}
   }
 }
 

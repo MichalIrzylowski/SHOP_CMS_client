@@ -39,6 +39,11 @@ const Navbar = ({ isLoggedin, handleLogout }) => {
           {isLoggedin && (
             <Fragment>
               <li className="navbar-item">
+                <Link to="/shop_items" className="nav-link">
+                  Shop Items
+                </Link>
+              </li>
+              <li className="navbar-item">
                 <Link to="/add_item" className="nav-link">
                   Add item
                 </Link>
