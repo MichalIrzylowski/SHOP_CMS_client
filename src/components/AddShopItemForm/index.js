@@ -71,7 +71,6 @@ class AddShopItemForm extends Component {
                   name="price"
                   id="price"
                   placeholder="Enter price"
-                  value={this.state.price}
                   onChange={this.handleChange}
                 />{" "}
                 USD

@@ -1,6 +1,9 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
 
+import Loading from "./Loading";
+import ItemList from "./ItemList";
+
 import { FETCH_SHOP_ITEMS_REQUEST } from "../../actions/ActionTypes";
 
 class ShopItemsList extends Component {
@@ -9,7 +12,11 @@ class ShopItemsList extends Component {
   }
 
   render() {
-    return <div className="container">Loading...</div>;
+    const { loading, items } = this.props;
+
+    const component = loading ? <Loading /> : <ItemList items={items} />;
+
+    return component;
   }
 }
 
@@ -21,7 +28,14 @@ function mapDispatchToProps(dispatch) {
   };
 }
 
+function mapStateToProps(state) {
+  return {
+    loading: state.shopItems.loading,
+    items: state.shopItems.items
+  };
+}
+
 export default connect(
-  null,
+  mapStateToProps,
   mapDispatchToProps
 )(ShopItemsList);

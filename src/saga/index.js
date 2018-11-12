@@ -54,15 +54,22 @@ function* addItem() {
 
 function* fetchShopItems() {
   while (true) {
-    const request = yield Action.FETCH_SHOP_ITEMS_REQUEST;
+    yield take(Action.FETCH_SHOP_ITEMS_REQUEST);
     const path = "/api/shop/shop_item";
     try {
       const response = yield call(api, "get", path);
-    } catch (error) {}
+      yield put({
+        type: Action.FETCH_SHOP_ITEMS_SUCCESS,
+        items: response.data
+      });
+    } catch (error) {
+      console.log(error);
+    }
   }
 }
 
 export default function* rootSaga() {
   yield fork(authenticateFlow);
   yield fork(addItem);
+  yield fork(fetchShopItems);
 }
