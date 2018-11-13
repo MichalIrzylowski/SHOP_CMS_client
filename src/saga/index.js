@@ -1,4 +1,5 @@
-import { take, fork, call, put, takeEvery } from "redux-saga/effects";
+import { take, fork, call, put } from "redux-saga/effects";
+import { delay } from "redux-saga";
 import * as Action from "../actions/ActionTypes";
 import {
   api,
@@ -37,17 +38,28 @@ function* addItem() {
       const imageURL = yield sendImageToCloudinary(request.data.picture);
       setAuthorizationHeader(sessionStorage.token);
       const image = imageURL.data.secure_url;
-      const { name, description, userId, price } = request.data;
+      const { name, description, userId, price, category } = request.data;
       const response = yield call(api, "post", path, {
         name,
         description,
         image,
         userId,
-        price
+        price,
+        category
       });
-      console.log(response);
+      yield put({ type: Action.ADD_SHOP_ITEM_SUCCESS, item: response.data });
+      yield put({ type: Action.REMOVE_ERRORS });
+      yield put({
+        type: Action.ADD_INFORMATION,
+        information: `Succesfuly added a ${response.data.name}`
+      });
+      yield call(delay, 5000);
+      yield put({ type: Action.REMOVE_INFORMATION });
     } catch (error) {
-      console.log(error);
+      console.log(error.response);
+      const message = error.response.data.error.message;
+      yield put({ type: Action.ADD_SHOP_ITEM_FAIL });
+      yield put({ type: Action.PUT_ERROR, error: message });
     }
   }
 }
@@ -63,7 +75,36 @@ function* fetchShopItems() {
         items: response.data
       });
     } catch (error) {
-      console.log(error);
+      const message = error.response.data.error.message;
+      yield put({ type: Action.PUT_ERROR, error: message });
+    }
+  }
+}
+
+function* deleteShopItem() {
+  while (true) {
+    const request = yield take(Action.REMOVE_ITEM_REQUEST);
+    const path = `/api/shop/shop_item/${request.id}`;
+    try {
+      yield call(api, "delete", path);
+      yield put({ type: Action.REMOVE_ITEM_SUCCESS, id: request.id });
+    } catch (error) {
+      const message = error.response.data.error.message;
+      yield put({ type: Action.PUT_ERROR, error: message });
+    }
+  }
+}
+
+function* findShopItem() {
+  while (true) {
+    const request = yield take(Action.FIND_ITEM_REQUEST);
+    const path = `/api/shop/shop_item/${request.id}`;
+    try {
+      const response = yield call(api, "get", path);
+      yield put({ type: Action.FIND_ITEM_SUCCESS, item: response.data });
+    } catch (error) {
+      const message = error.response.data.error.message;
+      yield put({ type: Action.PUT_ERROR, error: message });
     }
   }
 }
@@ -72,4 +113,6 @@ export default function* rootSaga() {
   yield fork(authenticateFlow);
   yield fork(addItem);
   yield fork(fetchShopItems);
+  yield fork(deleteShopItem);
+  yield fork(findShopItem);
 }

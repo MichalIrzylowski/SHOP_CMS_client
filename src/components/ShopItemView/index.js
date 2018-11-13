@@ -12,9 +12,9 @@ class ShopItemsList extends Component {
   }
 
   render() {
-    const { loading, items } = this.props;
+    const { loading } = this.props;
 
-    const component = loading ? <Loading /> : <ItemList items={items} />;
+    const component = loading ? <Loading /> : <ItemList />;
 
     return component;
   }
@@ -30,8 +30,7 @@ function mapDispatchToProps(dispatch) {
 
 function mapStateToProps(state) {
   return {
-    loading: state.shopItems.loading,
-    items: state.shopItems.items
+    loading: state.shopItems.loading
   };
 }
 

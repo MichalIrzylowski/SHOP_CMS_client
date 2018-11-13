@@ -1,7 +1,12 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
+import { withRouter } from "react-router-dom";
 import ProductCardPreview from "./ProductCardPreview";
-import { ADD_SHOP_ITEM } from "../../actions/ActionTypes";
+import {
+  ADD_SHOP_ITEM,
+  FIND_ITEM_REQUEST,
+  REMOVE_FETCHED_ITEM
+} from "../../actions/ActionTypes";
 
 class AddShopItemForm extends Component {
   constructor(props) {
@@ -11,9 +16,18 @@ class AddShopItemForm extends Component {
       description: "",
       imgSrc: "",
       price: undefined,
+      category: "",
       picture: undefined
     };
   }
+
+  componentDidMount = () => {
+    if (this.props.match.params.id) {
+      this.props.fetchItem(this.props.match.params.id);
+    } else {
+      this.props.removeFetchedItem();
+    }
+  };
 
   handleChange = e => {
     this.setState({ [e.target.name]: e.target.value });
@@ -30,24 +44,52 @@ class AddShopItemForm extends Component {
   };
 
   handleSubmit = e => {
+    const isEdit = this.props.location.pathname.includes("edit");
+
     e.preventDefault();
-    const { name, description, picture, price } = this.state;
-    const { currentUserId } = this.props;
-    this.props.addItem(name, description, picture, currentUserId, price);
+    if (!isEdit) {
+      const { name, description, picture, price, category } = this.state;
+      const { currentUserId } = this.props;
+      this.props.addItem(
+        name,
+        description,
+        picture,
+        currentUserId,
+        price,
+        category
+      );
+    }
   };
 
   render() {
-    const isFormLoading = false;
+    const { information, loading } = this.props;
+
+    const { name, description, image, price } = this.props.fetchedItem;
+
+    const isEdit = this.props.location.pathname.includes("edit");
+
+    const typeOfBtn = isEdit ? (
+      <button type="submit" className="btn btn-warning" disabled={loading}>
+        Edit a product
+      </button>
+    ) : (
+      <button type="submit" className="btn btn-success" disabled={loading}>
+        Add a product
+      </button>
+    );
 
     return (
       <div className="container">
+        {information && (
+          <div className="alert alert-primary">{information}</div>
+        )}
         <h1 className="text-center">Add new item to the shop</h1>
         <div className="row">
           <ProductCardPreview
-            title={this.state.name}
-            text={this.state.description}
-            picture={this.state.imgSrc}
-            price={this.state.price}
+            title={this.state.name || name}
+            text={this.state.description || description}
+            picture={this.state.imgSrc || image}
+            price={this.state.price || price}
           />
           <div className="col-sm">
             <form onSubmit={this.handleSubmit}>
@@ -76,6 +118,21 @@ class AddShopItemForm extends Component {
                 USD
               </div>
               <div className="form-group">
+                <label htmlFor="category">Category:</label>
+                <select
+                  name="category"
+                  id="category"
+                  className="form-control"
+                  onChange={this.handleChange}
+                >
+                  <option value="">Choose category...</option>
+                  <option value="category 1">Category 1</option>
+                  <option value="category 2">Category 2</option>
+                  <option value="category 3">Category 3</option>
+                  <option value="category 4">Category 4</option>
+                </select>
+              </div>
+              <div className="form-group">
                 <label htmlFor="description">Description of a product:</label>
                 <textarea
                   name="description"
@@ -97,13 +154,7 @@ class AddShopItemForm extends Component {
                   onChange={this.handleFileAdd}
                 />
               </div>
-              <button
-                type="submit"
-                className="btn btn-success"
-                disabled={isFormLoading}
-              >
-                Add a product
-              </button>
+              {typeOfBtn}
             </form>
           </div>
         </div>
@@ -114,21 +165,32 @@ class AddShopItemForm extends Component {
 
 function mapDispatchToProps(dispatch) {
   return {
-    addItem: (name, description, picture, userId, price) =>
+    addItem: (name, description, picture, userId, price, category) =>
       dispatch({
         type: ADD_SHOP_ITEM,
-        data: { name, description, picture, userId, price }
-      })
+        data: { name, description, picture, userId, price, category }
+      }),
+    fetchItem: id => {
+      dispatch({ type: FIND_ITEM_REQUEST, id });
+    },
+    removeFetchedItem: () => {
+      dispatch({ type: REMOVE_FETCHED_ITEM });
+    }
   };
 }
 
 function mapStateToProps(state) {
   return {
-    currentUserId: state.currentUser.id
+    currentUserId: state.currentUser.id,
+    information: state.information,
+    loading: state.shopItems.loading,
+    fetchedItem: state.fetchedItem
   };
 }
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(AddShopItemForm);
+export default withRouter(
+  connect(
+    mapStateToProps,
+    mapDispatchToProps
+  )(AddShopItemForm)
+);
