@@ -2,11 +2,7 @@ import React, { Component } from "react";
 import { connect } from "react-redux";
 import { withRouter } from "react-router-dom";
 import ProductCardPreview from "./ProductCardPreview";
-import {
-  ADD_SHOP_ITEM,
-  FIND_ITEM_REQUEST,
-  REMOVE_FETCHED_ITEM
-} from "../../actions/ActionTypes";
+import { ADD_SHOP_ITEM, UPDATE_SHOP_ITEM } from "../../actions/ActionTypes";
 
 class AddShopItemForm extends Component {
   constructor(props) {
@@ -17,15 +13,26 @@ class AddShopItemForm extends Component {
       imgSrc: "",
       price: undefined,
       category: "",
-      picture: undefined
+      picture: undefined,
+      id: null
     };
   }
 
   componentDidMount = () => {
     if (this.props.match.params.id) {
-      this.props.fetchItem(this.props.match.params.id);
-    } else {
-      this.props.removeFetchedItem();
+      const id = this.props.match.params.id;
+      const { items } = this.props;
+      const editedItem = items.find(item => item._id === id);
+      if (editedItem) {
+        this.setState({
+          name: editedItem.name,
+          description: editedItem.description,
+          imgSrc: editedItem.image,
+          price: editedItem.price,
+          category: editedItem.category,
+          id: editedItem._id
+        });
+      }
     }
   };
 
@@ -47,9 +54,9 @@ class AddShopItemForm extends Component {
     const isEdit = this.props.location.pathname.includes("edit");
 
     e.preventDefault();
+    const { name, description, picture, imgSrc, price, category } = this.state;
+    const { currentUserId } = this.props;
     if (!isEdit) {
-      const { name, description, picture, price, category } = this.state;
-      const { currentUserId } = this.props;
       this.props.addItem(
         name,
         description,
@@ -58,13 +65,21 @@ class AddShopItemForm extends Component {
         price,
         category
       );
+    } else {
+      this.props.updateItem(
+        this.state.id,
+        name,
+        description,
+        picture || imgSrc,
+        price,
+        category,
+        currentUserId
+      );
     }
   };
 
   render() {
     const { information, loading } = this.props;
-
-    const { name, description, image, price } = this.props.fetchedItem;
 
     const isEdit = this.props.location.pathname.includes("edit");
 
@@ -86,10 +101,10 @@ class AddShopItemForm extends Component {
         <h1 className="text-center">Add new item to the shop</h1>
         <div className="row">
           <ProductCardPreview
-            title={this.state.name || name}
-            text={this.state.description || description}
-            picture={this.state.imgSrc || image}
-            price={this.state.price || price}
+            title={this.state.name}
+            text={this.state.description}
+            picture={this.state.imgSrc}
+            price={this.state.price}
           />
           <div className="col-sm">
             <form onSubmit={this.handleSubmit}>
@@ -170,11 +185,19 @@ function mapDispatchToProps(dispatch) {
         type: ADD_SHOP_ITEM,
         data: { name, description, picture, userId, price, category }
       }),
-    fetchItem: id => {
-      dispatch({ type: FIND_ITEM_REQUEST, id });
-    },
-    removeFetchedItem: () => {
-      dispatch({ type: REMOVE_FETCHED_ITEM });
+    updateItem: (
+      id,
+      name,
+      description,
+      picture,
+      price,
+      category,
+      currentUserId
+    ) => {
+      dispatch({
+        type: UPDATE_SHOP_ITEM,
+        data: { id, name, description, picture, price, category, currentUserId }
+      });
     }
   };
 }
@@ -184,7 +207,7 @@ function mapStateToProps(state) {
     currentUserId: state.currentUser.id,
     information: state.information,
     loading: state.shopItems.loading,
-    fetchedItem: state.fetchedItem
+    items: state.shopItems.items
   };
 }
 

@@ -6,7 +6,8 @@ import {
   ADD_SHOP_ITEM_SUCCESS,
   CHANGE_CATEGORY,
   REMOVE_ITEM_SUCCESS,
-  ADD_SHOP_ITEM_FAIL
+  ADD_SHOP_ITEM_FAIL,
+  UPDATE_ITEM_SUCCESS
 } from "../actions/ActionTypes";
 
 const defaultState = {
@@ -42,6 +43,16 @@ export default (state = defaultState, action) => {
 
     case CHANGE_CATEGORY:
       return { ...state, category: action.category };
+
+    case UPDATE_ITEM_SUCCESS:
+      const itemsAfterUpdate = state.items.map(item => {
+        if (item._id === action.updatedItem._id) {
+          return action.updatedItem;
+        } else {
+          return item;
+        }
+      });
+      return { ...state, items: itemsAfterUpdate };
     default:
       return state;
   }

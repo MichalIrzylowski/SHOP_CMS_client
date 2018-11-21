@@ -95,13 +95,29 @@ function* deleteShopItem() {
   }
 }
 
-function* findShopItem() {
+function* updateItem() {
   while (true) {
-    const request = yield take(Action.FIND_ITEM_REQUEST);
-    const path = `/api/shop/shop_item/${request.id}`;
+    const request = yield take(Action.UPDATE_SHOP_ITEM);
+    const path = `/api/shop/shop_item/${request.data.id}`;
     try {
-      const response = yield call(api, "get", path);
-      yield put({ type: Action.FIND_ITEM_SUCCESS, item: response.data });
+      if (!request.data.picture.includes("https")) {
+        setAuthorizationHeader(false);
+        const imageURL = yield sendImageToCloudinary(request.data.picture);
+        setAuthorizationHeader(sessionStorage.token);
+        request.data.image = imageURL.data.secure_url;
+      }
+      const response = yield call(api, "put", path, request.data);
+      yield put({
+        type: Action.UPDATE_ITEM_SUCCESS,
+        updatedItem: response.data
+      });
+      yield put({ type: Action.REMOVE_ERRORS });
+      yield put({
+        type: Action.ADD_INFORMATION,
+        information: `Succesfuly updated a ${response.data.name}`
+      });
+      yield call(delay, 5000);
+      yield put({ type: Action.REMOVE_INFORMATION });
     } catch (error) {
       const message = error.response.data.error.message;
       yield put({ type: Action.PUT_ERROR, error: message });
@@ -114,5 +130,5 @@ export default function* rootSaga() {
   yield fork(addItem);
   yield fork(fetchShopItems);
   yield fork(deleteShopItem);
-  yield fork(findShopItem);
+  yield fork(updateItem);
 }
