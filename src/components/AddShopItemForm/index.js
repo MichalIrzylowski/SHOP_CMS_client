@@ -55,16 +55,8 @@ class AddShopItemForm extends Component {
 
     e.preventDefault();
     const { name, description, picture, imgSrc, price, category } = this.state;
-    const { currentUserId } = this.props;
     if (!isEdit) {
-      this.props.addItem(
-        name,
-        description,
-        picture,
-        currentUserId,
-        price,
-        category
-      );
+      this.props.addItem(name, description, picture, price, category);
     } else {
       this.props.updateItem(
         this.state.id,
@@ -72,8 +64,7 @@ class AddShopItemForm extends Component {
         description,
         picture || imgSrc,
         price,
-        category,
-        currentUserId
+        category
       );
     }
   };
@@ -180,23 +171,15 @@ class AddShopItemForm extends Component {
 
 function mapDispatchToProps(dispatch) {
   return {
-    addItem: (name, description, picture, userId, price, category) =>
+    addItem: (name, description, picture, price, category) =>
       dispatch({
         type: ADD_SHOP_ITEM,
-        data: { name, description, picture, userId, price, category }
+        data: { name, description, picture, price, category }
       }),
-    updateItem: (
-      id,
-      name,
-      description,
-      picture,
-      price,
-      category,
-      currentUserId
-    ) => {
+    updateItem: (id, name, description, picture, price, category) => {
       dispatch({
         type: UPDATE_SHOP_ITEM,
-        data: { id, name, description, picture, price, category, currentUserId }
+        data: { id, name, description, picture, price, category }
       });
     }
   };

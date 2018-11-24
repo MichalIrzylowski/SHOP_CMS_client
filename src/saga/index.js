@@ -38,12 +38,11 @@ function* addItem() {
       const imageURL = yield sendImageToCloudinary(request.data.picture);
       setAuthorizationHeader(sessionStorage.token);
       const image = imageURL.data.secure_url;
-      const { name, description, userId, price, category } = request.data;
+      const { name, description, price, category } = request.data;
       const response = yield call(api, "post", path, {
         name,
         description,
         image,
-        userId,
         price,
         category
       });
@@ -125,10 +124,45 @@ function* updateItem() {
   }
 }
 
+function* addMessage() {
+  while (true) {
+    const request = yield take(Action.ADD_MESSAGE_REQUEST);
+    const path = "/api/messages/add_message";
+    try {
+      const response = yield call(api, "post", path, {
+        message: request.message
+      });
+      yield put({ type: Action.ADD_MESSAGE_SUCCESS, message: response.data });
+    } catch (error) {
+      const message = error.response.data.error.message;
+      yield put({ type: Action.PUT_ERROR, error: message });
+    }
+  }
+}
+
+function* loadMessages() {
+  while (true) {
+    yield take(Action.LOAD_MESSAGES);
+    const path = "/api/messages";
+    try {
+      const response = yield call(api, "get", path);
+      yield put({
+        type: Action.LOAD_MESSAGES_SUCCESS,
+        messages: response.data
+      });
+    } catch (error) {
+      const message = error.response.data.error.message;
+      yield put({ type: Action.PUT_ERROR, error: message });
+    }
+  }
+}
+
 export default function* rootSaga() {
   yield fork(authenticateFlow);
   yield fork(addItem);
   yield fork(fetchShopItems);
   yield fork(deleteShopItem);
   yield fork(updateItem);
+  yield fork(addMessage);
+  yield fork(loadMessages);
 }

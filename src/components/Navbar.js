@@ -54,6 +54,11 @@ const Navbar = ({ isLoggedin, handleLogout }) => {
                 </Link>
               </li>
               <li className="navbar-item">
+                <Link to="/all_messages" className="nav-link">
+                  Messages
+                </Link>
+              </li>
+              <li className="navbar-item">
                 <button
                   className="btn btn-outline-danger"
                   onClick={handleLogout}

@@ -6,6 +6,8 @@ import AuthForm from "./AuthForm";
 import AddShopItemForm from "./AddShopItemForm";
 import NoMatch from "./NoMatch";
 import ShopItemView from "./ShopItemView";
+import AddMessage from "./AddMessage";
+import MessagesList from "./MessagesList";
 
 const Main = () => {
   return (
@@ -16,6 +18,8 @@ const Main = () => {
       <Route exact path="/add_item" component={withAuth(AddShopItemForm)} />
       <Route exact path="/shop_items" component={withAuth(ShopItemView)} />
       <Route exact path="/edit/:id" component={withAuth(AddShopItemForm)} />
+      <Route exact path="/add_message" component={withAuth(AddMessage)} />
+      <Route exact path="/all_messages" component={withAuth(MessagesList)} />
       <Route component={NoMatch} />
     </Switch>
   );
